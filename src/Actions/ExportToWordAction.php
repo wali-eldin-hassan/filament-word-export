@@ -16,6 +16,7 @@ class ExportToWordAction extends BulkAction
         return 'exportToWord';
     }
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();

@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Create Release
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-dev
+
+      - name: Run final quality checks
+        run: |
+          composer lint:test
+          composer refactor:dry
+
+      - name: Extract tag name
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            ## Changes in ${{ steps.tag.outputs.tag }}
+            
+            ### Features
+            - Enhanced Word export functionality
+            - Improved customization options
+            
+            ### Bug Fixes
+            - Various stability improvements
+            
+            ### Documentation
+            - Updated README with new features
+            
+            ## Installation
+            ```bash
+            composer require wali/filament-word-export:${{ steps.tag.outputs.tag }}
+            ```
+            
+            ## Full Changelog
+            See the [commit history](https://github.com/${{ github.repository }}/compare/v1.0.0...${{ steps.tag.outputs.tag }}) for detailed changes.
+          draft: false
+          prerelease: false

@@ -1,0 +1,29 @@
+# Global code owners
+# These owners will be the default owners for everything in the repo
+# Unless a later match takes precedence, these users will be requested for review
+* @wali
+
+# Configuration files require special attention
+config/ @wali
+*.yml @wali
+*.yaml @wali
+*.json @wali
+composer.json @wali
+composer.lock @wali
+
+# Core functionality - critical components
+src/Services/ @wali
+src/Support/ @wali
+src/Providers/ @wali
+
+# GitHub workflows and CI/CD
+.github/ @wali
+
+# Documentation
+README.md @wali
+*.md @wali
+
+# Security-sensitive files
+.github/workflows/ @wali
+rector.php @wali
+pint.json @wali
