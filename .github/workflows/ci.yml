@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-php-${{ matrix.php }}-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Check code style (Pint)
         run: composer lint:test
@@ -61,19 +61,19 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run security audit
         run: composer audit
 
   compatibility:
     runs-on: ubuntu-latest
-    name: Laravel Compatibility
+    name: Laravel Compatibility (${{ matrix.laravel }})
 
     strategy:
       fail-fast: false
       matrix:
-        laravel: ['^11.0', '^12.0']
+        laravel: ['11.*', '12.*']
         php: [8.3]
 
     steps:
@@ -87,10 +87,26 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: none
 
-      - name: Install dependencies
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-
+            ${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install dependencies with specific Laravel version
         run: |
-          composer require "illuminate/support:${{ matrix.laravel }}" --no-update
-          composer install --prefer-dist --no-progress
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-update --dev
+          composer update --prefer-dist --no-progress --with-all-dependencies
+
+      - name: Verify Laravel version
+        run: composer show laravel/framework
 
       - name: Check compatibility
         run: composer lint:test
+
+      - name: Run static analysis
+        run: composer refactor:dry
