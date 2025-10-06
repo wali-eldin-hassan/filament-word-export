@@ -5,22 +5,22 @@ This guide helps you understand the PHP version requirements and provides soluti
 ## Current Requirements
 
 **Filament Word Export Plugin v2.0+** requires:
-- **PHP 8.2+**
+- **PHP 8.3+**
 - **Laravel 10.x or 11.x**
 - **Filament 4.x**
 
-## Why PHP 8.2+?
+## Why PHP 8.3+?
 
-Starting with version 2.0, this plugin requires PHP 8.2+ because:
+Starting with version 2.0, this plugin requires PHP 8.3+ because:
 
-1. **Filament v4.1.1** requires PHP 8.2+
-2. **Laravel Framework v12.x** requires PHP 8.2+
-3. **Modern dependencies** (Symfony 7.x, brick/math, etc.) require PHP 8.2+
-4. **Better performance** and security features in PHP 8.2+
+1. **Filament v4.1.1** requires PHP 8.3+ (via openspout dependency)
+2. **openspout/openspout v4.32.0** requires PHP 8.3+
+3. **Modern dependencies** (Symfony 7.x, brick/math, etc.) require PHP 8.3+
+4. **Better performance** and security features in PHP 8.3+
 
 ## Migration Options
 
-### Option 1: Upgrade to PHP 8.2+ (Recommended)
+### Option 1: Upgrade to PHP 8.3+ (Recommended)
 
 **Benefits:**
 - ✅ Access to latest features and security updates
@@ -29,7 +29,7 @@ Starting with version 2.0, this plugin requires PHP 8.2+ because:
 - ✅ Long-term support and updates
 
 **Steps:**
-1. **Update your server/environment to PHP 8.2 or 8.3**
+1. **Update your server/environment to PHP 8.3**
 2. **Update your project dependencies:**
    ```bash
    composer update
@@ -172,12 +172,12 @@ Contact your hosting provider to:
 
 | Plugin Version | PHP Version | Laravel Version | Filament Version |
 |---------------|-------------|-----------------|------------------|
-| v2.0+         | 8.2+        | 10.x, 11.x      | 4.x              |
+| v2.0+         | 8.3+        | 10.x, 11.x      | 4.x              |
 | v1.x          | 8.1+        | 9.x, 10.x       | 3.x              |
 
 ## Conclusion
 
-We strongly recommend upgrading to PHP 8.2+ to take advantage of:
+We strongly recommend upgrading to PHP 8.3+ to take advantage of:
 - Latest security features
 - Improved performance
 - Better developer experience

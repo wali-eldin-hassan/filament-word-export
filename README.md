@@ -4,7 +4,7 @@ A Filament plugin for exporting table data to Microsoft Word (DOCX) format.
 
 ## Requirements
 
-- PHP 8.2+
+- PHP 8.3+
 - Laravel 10.x or 11.x
 - Filament 4.x
 
