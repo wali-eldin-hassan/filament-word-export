@@ -6,7 +6,7 @@ This guide helps you understand the PHP version requirements and provides soluti
 
 **Filament Word Export Plugin v2.0+** requires:
 - **PHP 8.3+**
-- **Laravel 10.x or 11.x**
+- **Laravel 11.x+**
 - **Filament 4.x**
 
 ## Why PHP 8.3+?
@@ -15,8 +15,9 @@ Starting with version 2.0, this plugin requires PHP 8.3+ because:
 
 1. **Filament v4.1.1** requires PHP 8.3+ (via openspout dependency)
 2. **openspout/openspout v4.32.0** requires PHP 8.3+
-3. **Modern dependencies** (Symfony 7.x, brick/math, etc.) require PHP 8.3+
-4. **Better performance** and security features in PHP 8.3+
+3. **Laravel 11.x** is the minimum Laravel version that supports PHP 8.3+
+4. **Modern dependencies** (Symfony 7.x, brick/math, etc.) require PHP 8.3+
+5. **Better performance** and security features in PHP 8.3+
 
 ## Migration Options
 
@@ -172,7 +173,7 @@ Contact your hosting provider to:
 
 | Plugin Version | PHP Version | Laravel Version | Filament Version |
 |---------------|-------------|-----------------|------------------|
-| v2.0+         | 8.3+        | 10.x, 11.x      | 4.x              |
+| v2.0+         | 8.3+        | 11.x+           | 4.x              |
 | v1.x          | 8.1+        | 9.x, 10.x       | 3.x              |
 
 ## Conclusion
