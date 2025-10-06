@@ -90,7 +90,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer require "illuminate/support:${{ matrix.laravel }}" --no-update
-          composer install --prefer-dist --no-progress --no-suggest
+          composer install --prefer-dist --no-progress
 
       - name: Check compatibility
         run: composer lint:test
