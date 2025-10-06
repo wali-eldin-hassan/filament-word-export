@@ -1,6 +1,29 @@
 {
   "name": "wali/filament-word-export",
-  "description": "Filament plugin for exporting tables to Word (DOCX)",
+  "description": "A powerful Filament plugin for exporting table data to Word documents with customizable headers, footers, and styling",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "filament",
+    "laravel",
+    "word",
+    "docx",
+    "export",
+    "phpword",
+    "table-export",
+    "document-generation"
+  ],
+  "authors": [
+    {
+      "name": "Wali",
+      "email": "creaspo6@gmail.com"
+    }
+  ],
+  "homepage": "https://github.com/wali-eldin-hassan/filament-word-export",
+  "support": {
+    "issues": "https://github.com/wali-eldin-hassan/filament-word-export/issues",
+    "source": "https://github.com/wali-eldin-hassan/filament-word-export"
+  },
   "autoload": {
     "psr-4": {
           "Wali\\FilamentWordExport\\": "src/"
@@ -27,6 +50,8 @@
     "laravel/pint": "^1.25",
     "rector/rector": "^2.1"
   },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
   "scripts": {
     "lint": "pint",
     "lint:test": "pint --test",
