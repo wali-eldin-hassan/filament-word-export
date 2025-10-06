@@ -24,8 +24,7 @@ Enable the following options:
 - [x] **Require branches to be up to date before merging**
 
 **Required status checks to add:**
-- `Code Quality (PHP 8.1)`
-- `Code Quality (PHP 8.2)` 
+- `Code Quality (PHP 8.2)`
 - `Code Quality (PHP 8.3)`
 - `Security Audit`
 - `Laravel Compatibility`
