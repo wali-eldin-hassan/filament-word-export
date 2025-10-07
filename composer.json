@@ -34,6 +34,7 @@
   },
   "require": {
     "php": "^8.3",
+    "filament/filament": "^3.0|^4.0",
     "spatie/laravel-package-tools": "^1.14",
     "phpoffice/phpword": "^1.4.0",
     "illuminate/support": "^11.0|^12.0"
@@ -47,8 +48,7 @@
   },
   "require-dev": {
     "laravel/pint": "^1.25",
-    "rector/rector": "^2.1",
-    "filament/filament": "^3.0"
+    "rector/rector": "^2.1"
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
