@@ -81,6 +81,58 @@ ExportToWordAction::make()
     ])
 ```
 
+### Optional: End-User Custom Template Upload
+
+You can allow users to upload their own `.docx` template (which may contain a `TABLE_DATA` placeholder) at export time. Enable this on the action:
+
+```php
+ExportToWordAction::make()
+    ->allowCustomTemplateUpload(); // Optionally pass (true, 'custom-directory')
+```
+
+Configuration (published file) provides defaults:
+
+```php
+'custom_template' => [
+    'enabled' => true,
+    'directory' => 'word-templates',
+    'max_size_mb' => 5,
+],
+```
+
+Template Usage:
+
+- Upload a `.docx` file during the bulk action.
+- Include `${TABLE_DATA}` in the document where you want a plain-text representation of the selected records.
+- If no placeholder is found, the template is exported unchanged except for basic value substitution (future enhancements may add more placeholders).
+
+Fallback Behavior: If the uploaded template cannot be processed, the system silently falls back to the default generated table layout.
+
+### Adding Custom Template Variables
+
+Allow users to type placeholder variables that will be replaced in the uploaded template using PHPWord's `TemplateProcessor`:
+
+```php
+ExportToWordAction::make()
+    ->allowCustomTemplateUpload()
+    ->allowCustomVariables();
+```
+
+During the action, a "Template Variables" key/value editor appears. If a user adds:
+
+| Key            | Value            |
+|----------------|------------------|
+| company_name   | Acme Inc         |
+| report_date    | 2025-10-07       |
+
+Then placeholders `${company_name}` and `${report_date}` in the .docx will be replaced.
+
+Notes:
+* Enter keys without the `${}` wrapper (just `company_name`).
+* Non-scalar values are JSON-encoded.
+* All replacements occur after `${TABLE_DATA}` injection.
+* Missing placeholders in the template are ignored silently.
+
 ## Configuration
 
 Publish the configuration file:

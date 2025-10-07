@@ -138,3 +138,18 @@ ExportToWordAction::make()
 1. `WordExportService` - Support multiple export formats
 2. `ExportToWordAction` - Add format selection UI
 3. Configuration - Add template settings
+
+## 6. Current Status (Implemented Features)
+
+- Custom template upload (single .docx) via `ExportToWordAction::allowCustomTemplateUpload()`
+- Placeholder support: `${TABLE_DATA}` replaced with a plain-text tab-delimited listing of selected records.
+- User-entered arbitrary placeholder variables via `allowCustomVariables()` and KeyValue form field.
+- Graceful fallback to generated table export if template is missing or invalid.
+- Configuration keys added under `custom_template` for directory and size defaults.
+
+## 7. Planned Enhancements
+
+- Rich table injection directly into template body instead of plain text.
+- Placeholder mapping API (e.g., `${record.field}` for first record or aggregate values).
+- Repeating block cloning for multi-row data.
+ - Validation feedback for unused user-entered placeholders.

@@ -13,6 +13,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Custom Template Upload (Optional)
+    |--------------------------------------------------------------------------
+    |
+    | Allow end users (through the bulk action) to upload a custom .docx file
+    | that will be used as the base template. When enabled via action method
+    | ->allowCustomTemplateUpload(), the uploaded file path will be passed to
+    | the export service.
+    |
+    */
+    'custom_template' => [
+        'enabled' => true,
+        'directory' => 'word-templates', // relative to the storage disk
+        'max_size_mb' => 5, // validation hint for upload component
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Header Configuration
     |--------------------------------------------------------------------------
     |

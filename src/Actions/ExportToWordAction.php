@@ -5,11 +5,43 @@ namespace Wali\FilamentWordExport\Actions;
 use Illuminate\Database\Eloquent\Collection;
 use Wali\FilamentWordExport\Actions\Concerns\FilamentBulkActionBase;
 use Wali\FilamentWordExport\Services\WordExportService;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\KeyValue;
 
 class ExportToWordAction extends FilamentBulkActionBase
 {
     protected array $templateOverrides = [];
     protected array $exportOptions = [];
+    protected bool $allowCustomTemplateUpload = false;
+    protected bool $allowCustomVariables = false;
+
+    /**
+     * Directory (relative to storage disk) where uploaded templates will be stored.
+     */
+    protected string $customTemplateDirectory = 'word-templates';
+
+    /**
+     * Enable end-user ability to upload a custom Word (.docx) template for this export.
+     */
+    public function allowCustomTemplateUpload(bool $enable = true, ?string $directory = null): static
+    {
+        $this->allowCustomTemplateUpload = $enable;
+        if ($directory) {
+            $this->customTemplateDirectory = $directory;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Allow user to specify arbitrary placeholder => value pairs for TemplateProcessor.
+     */
+    public function allowCustomVariables(bool $enable = true): static
+    {
+        $this->allowCustomVariables = $enable;
+
+        return $this;
+    }
 
     public static function getDefaultName(): ?string
     {
@@ -24,18 +56,51 @@ class ExportToWordAction extends FilamentBulkActionBase
         $this
             ->label('Export to Word')
             ->icon('heroicon-o-document-text')
-            ->requiresConfirmation()
-            ->action(function (Collection $records) {
-                $data = $records->map(fn ($record) => $record->toArray())->toArray();
+            ->requiresConfirmation();
 
-                $service = app(WordExportService::class);
+        // Inject optional form for custom template upload
+        $formComponents = [];
+        if ($this->allowCustomTemplateUpload) {
+            $formComponents[] = FileUpload::make('custom_template')
+                ->label('Custom Template (.docx)')
+                ->helperText('Optional: upload a .docx template to use instead of the default generated layout.')
+                ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                ->directory($this->customTemplateDirectory)
+                ->preserveFilenames()
+                ->maxSize(5 * 1024) // 5 MB
+                ->columnSpanFull();
+        }
+        if ($this->allowCustomVariables) {
+            $formComponents[] = KeyValue::make('template_variables')
+                ->label('Template Variables')
+                ->helperText('Add placeholder => value pairs. Placeholders should match ${placeholder} in the .docx template (omit ${} here).')
+                ->addButtonLabel('Add Variable')
+                ->columnSpanFull();
+        }
+        if ($formComponents !== []) {
+            $this->form($formComponents);
+        }
 
-                if ($this->templateOverrides !== []) {
-                    $service->withTemplateOverrides($this->templateOverrides);
-                }
+        $this->action(function (Collection $records, array $data = []) {
+            $tableData = $records->map(fn ($record) => $record->toArray())->toArray();
 
-                return $service->export($data, $this->exportOptions);
-            });
+            // If user uploaded a custom template, record its relative storage path in export options
+            if ($this->allowCustomTemplateUpload && ! empty($data['custom_template'])) {
+                // Single file upload returns string path
+                $this->exportOptions(['custom_template_path' => $data['custom_template']]);
+            }
+            if ($this->allowCustomVariables && ! empty($data['template_variables']) && is_array($data['template_variables'])) {
+                $this->exportOptions(['custom_template_variables' => $data['template_variables']]);
+            }
+
+            $service = app(WordExportService::class);
+
+            if ($this->templateOverrides !== []) {
+                $service->withTemplateOverrides($this->templateOverrides);
+            }
+
+            return $service->export($tableData, $this->exportOptions);
+        });
     }
 
     /**

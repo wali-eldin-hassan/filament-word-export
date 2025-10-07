@@ -5,6 +5,7 @@ namespace Wali\FilamentWordExport\Services;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Wali\FilamentWordExport\Support\WordTemplateBuilder;
 
@@ -23,6 +24,13 @@ class WordExportService
      */
     public function export(array $records, array $options = []): BinaryFileResponse
     {
+        $customTemplatePath = $options['custom_template_path'] ?? null;
+
+        // If a custom template is provided, attempt to process it via TemplateProcessor
+        if ($customTemplatePath) {
+            return $this->exportWithCustomTemplate($records, $options, $customTemplatePath);
+        }
+
         $phpWord = new PhpWord;
         $section = $phpWord->addSection();
 
@@ -34,7 +42,53 @@ class WordExportService
         $this->createDataTable($section, $records);
 
         // Generate and return the file
-        return $this->generateFile($phpWord, $options);
+        return $this->generateFileFromPhpWord($phpWord, $options);
+    }
+
+    /**
+     * Export using a user supplied .docx template. The template may optionally include a placeholder
+     * ${TABLE_DATA} which will be replaced by a simple textual table representation since PHPWord's
+     * TemplateProcessor does not directly support injecting table objects.
+     */
+    protected function exportWithCustomTemplate(array $records, array $options, string $relativePath): BinaryFileResponse
+    {
+        $storageDisk = $this->config['storage_disk'] ?? 'local';
+        $disk = Storage::disk($storageDisk);
+
+        if (! $disk->exists($relativePath)) {
+            // Fallback silently to default export if template missing
+            return $this->export($records, array_diff_key($options, ['custom_template_path' => true]));
+        }
+
+        $fullPath = $disk->path($relativePath);
+        try {
+            $templateProcessor = new TemplateProcessor($fullPath);
+        } catch (\Throwable $e) {
+            // On failure to load template, fallback
+            return $this->export($records, array_diff_key($options, ['custom_template_path' => true]));
+        }
+
+        // Basic placeholder support: TABLE_DATA
+        $templateProcessor->setValue('TABLE_DATA', $this->buildPlainTextTable($records));
+
+        // Apply user-provided variables (key => value). Keys are used as-is.
+        if (! empty($options['custom_template_variables']) && is_array($options['custom_template_variables'])) {
+            foreach ($options['custom_template_variables'] as $key => $value) {
+                // Ensure scalar string-ish
+                $templateProcessor->setValue($key, is_scalar($value) ? (string) $value : json_encode($value));
+            }
+        }
+
+        // Future: allow mapping of record fields to placeholders via user-provided map.
+
+        $filename = $options['filename'] ?? 'filament-export-'.now()->format('Ymd_His').'.docx';
+        $path = 'exports/'.$filename;
+
+        $disk->makeDirectory('exports');
+        $tempPath = $disk->path($path);
+        $templateProcessor->saveAs($tempPath);
+
+        return response()->download($tempPath)->deleteFileAfterSend(true);
     }
 
     /**
@@ -107,7 +161,7 @@ class WordExportService
     /**
      * Generate the Word file and return download response.
      */
-    protected function generateFile(PhpWord $phpWord, array $options): BinaryFileResponse
+    protected function generateFileFromPhpWord(PhpWord $phpWord, array $options): BinaryFileResponse
     {
         $filename = $options['filename'] ?? 'filament-export-'.now()->format('Ymd_His').'.docx';
         $storageDisk = $this->config['storage_disk'] ?? 'local';
@@ -124,5 +178,23 @@ class WordExportService
         IOFactory::createWriter($phpWord, 'Word2007')->save($tempPath);
 
         return response()->download($tempPath)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Build a simple plain text representation of records for template placeholder injection.
+     */
+    protected function buildPlainTextTable(array $records): string
+    {
+        if ($records === []) {
+            return 'No data available';
+        }
+
+        $lines = [];
+        foreach ($records as $row) {
+            $values = array_map(fn ($v) => (string) ($v ?? '-'), $row);
+            $lines[] = implode(" \t ", $values);
+        }
+
+        return implode("\n", $lines);
     }
 }
