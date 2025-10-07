@@ -27,9 +27,10 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__.'/bootstrap/cache',
 
         // Skip RemoveParentCallWithoutParentRector for our Filament compatibility layer
-        // The parent::setUp() call is required but Rector cannot detect it due to conditional inheritance
+        // The parent::setUp() calls are required but Rector cannot detect them due to conditional inheritance
         RemoveParentCallWithoutParentRector::class => [
             __DIR__.'/src/Actions/ExportToWordAction.php',
+            __DIR__.'/src/Actions/Concerns/FilamentCompatibility.php',
         ],
     ]);
 
