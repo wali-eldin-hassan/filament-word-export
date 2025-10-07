@@ -9,6 +9,7 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
 use Rector\DeadCode\Rector\Property\RemoveUselessVarTagRector;
+use Rector\DeadCode\Rector\StaticCall\RemoveParentCallWithoutParentRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
@@ -24,6 +25,12 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__.'/node_modules',
         __DIR__.'/storage',
         __DIR__.'/bootstrap/cache',
+
+        // Skip RemoveParentCallWithoutParentRector for our Filament compatibility layer
+        // The parent::setUp() call is required but Rector cannot detect it due to conditional inheritance
+        RemoveParentCallWithoutParentRector::class => [
+            __DIR__.'/src/Actions/ExportToWordAction.php',
+        ],
     ]);
 
     // Define sets of rules
