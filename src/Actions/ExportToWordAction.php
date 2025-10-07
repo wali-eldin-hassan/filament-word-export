@@ -2,11 +2,11 @@
 
 namespace Wali\FilamentWordExport\Actions;
 
-use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
+use Wali\FilamentWordExport\Actions\Concerns\FilamentBulkActionBase;
 use Wali\FilamentWordExport\Services\WordExportService;
 
-class ExportToWordAction extends BulkAction
+class ExportToWordAction extends FilamentBulkActionBase
 {
     protected array $templateOverrides = [];
     protected array $exportOptions = [];

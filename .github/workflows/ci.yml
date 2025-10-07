@@ -68,13 +68,21 @@ jobs:
 
   compatibility:
     runs-on: ubuntu-latest
-    name: Laravel Compatibility (${{ matrix.laravel }})
+    name: Laravel ${{ matrix.laravel }} & Filament ${{ matrix.filament }} Compatibility
 
     strategy:
       fail-fast: false
       matrix:
-        laravel: ['11.*', '12.*']
-        php: [8.3]
+        include:
+          - laravel: '11.*'
+            filament: '^3.0'
+            php: 8.3
+          - laravel: '11.*'
+            filament: '^4.0'
+            php: 8.3
+          - laravel: '12.*'
+            filament: '^4.0'
+            php: 8.3
 
     steps:
       - name: Checkout code
@@ -92,18 +100,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-filament-${{ matrix.filament }}-${{ hashFiles('**/composer.json') }}
           restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-filament-${{ matrix.filament }}-
             ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-
             ${{ runner.os }}-php-${{ matrix.php }}-
 
-      - name: Install dependencies with specific Laravel version
+      - name: Install dependencies with specific Laravel and Filament versions
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" --no-update --dev
+          composer require "laravel/framework:${{ matrix.laravel }}" "filament/filament:${{ matrix.filament }}" --no-update --dev
           composer update --prefer-dist --no-progress --with-all-dependencies
 
-      - name: Verify Laravel version
-        run: composer show laravel/framework
+      - name: Verify Laravel and Filament versions
+        run: |
+          composer show laravel/framework
+          composer show filament/filament
 
       - name: Check compatibility
         run: composer lint:test
